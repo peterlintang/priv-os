@@ -1,0 +1,4 @@
+
+CFLAGS := -I/home/john/books/c-aglorthim/include -g
+AR := /root/sdk2.3/OCTEON-SDK/tools/bin/mips64-octeon-linux-gnu-ar
+CC := /root/sdk2.3/OCTEON-SDK/tools/bin/mips64-octeon-linux-gnu-gcc

@@ -1,0 +1,5 @@
+
+.c.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $<
+.s.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $<
