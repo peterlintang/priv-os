@@ -1,19 +1,18 @@
 #include	"setjmp.h"
 #include	"transfer.h"
 
+#define NULL	0
+
 typedef struct proc_t	proc_t;
 struct proc_t
 {
-	context_t	context;
+	jmp_buf		env;
+	jmp_buf		context;
 	proc_t		*p_next;
-	short		p_id;
-	short		p_parent;
-	short		p_pgrp;
-	char		p_pri;
-	char		p_tmp_pri;
-	char		p_passed;
-	int			p_tmp_pri_up;
-	unsigned char	p_state;
+	int		pid;
+	int		p_state;
+	char 	*(*func)(void *arg);
+	void	*arg;
 #define	DEAD		0/* => defunct			*/
 #define	ZOMBIE		1/* => needs K9wait by parent	*/
 #define	WAITING		2/* => blocked in K9request	*/
@@ -25,55 +24,59 @@ struct proc_t
 static proc_t		procv[4];
 static proc_t		*firstfree;
 static proc_t		*lastfree;
-static proc_t		*thisp;
+static proc_t		*thisp;	// current process ?
 static proc_t		*prevp;
 static proc_t		*lastp;
 #define	FIRSTP		(&procv[0])
 
+static void _process(void)
+{
+	char	*ret_str = NULL;
+	proc_t	*p = thisp;
+
+	if (setjmp(p->env)) {
+out:
+		/* free task */
+		print("%s\n", ret_str);
+		thisp = thisp->p_next;
+		lastfree->p_next = p;
+		lastfree = p;
+		p->p_next = NULL;
+		free(p->context[13]);	// from stack memory
+		longjmp(thisp->env);	// call next process
+	}
+	ret_str = p->func(p->arg);
+	goto out;
+}
 
 static void	process(void);
-static void	ready(proc_t *);
-static void	unready(void);
 
 int
-_spawn(char  *name, char  *(*fn)(void *), void  *arg, unsigned wspsiz, unsigned rflags)
+_spawn(char  *name, 
+		char  *(*func)(void *), 
+		void  *arg, 
+		unsigned wspsiz, 
+		unsigned rflags)
 {
-	register int		i;
-	register proc_t		*p;
+	proc_t		*p;
+
+	if (!(p = firstfree)) {
+		return -1;
+	}
+	firstfree = p->p_next;
+
+	lastp->p_next = p;
+	lastp = p;
+	p->p_next = NULL;
+	p->arg = arg;
+	p->func = func;
+	p->context[14] = _process;
 
 	return 0;
 }
 
-void __exit(char *result)
+
+
+static int give_up_cpu()
 {
 }
-
-void _yield()
-{
-	register context_t	*from;
-	register context_t	*to;
-
-	from 	= &thisp->context;
-	to 		= &thisp->p_next->context;
-	thisp	= thisp->p_next;
-	TRANSFER(from, to);
-}
-
-static void _process(void)
-{
-}
-
-/*
-**	ready		-- put a process onto the runnable list
-*/
-static void _ready(proc_t *p)
-{
-}
-
-/*
-**	unready		-- unlink current process from the runnable list
-*/
-static void unready(void)
-{
-}
-
