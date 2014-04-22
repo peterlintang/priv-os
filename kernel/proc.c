@@ -32,7 +32,7 @@ struct proc_t
 #define	INTERRUPTED	5/* => signalled while RUNNING	*/
 };
 
-#define MAXPROCESS	4
+#define MAXPROCESS	16
 static proc_t		procv[MAXPROCESS];
 static proc_t		*firstfree;
 static proc_t		*lastfree;
@@ -53,29 +53,35 @@ static int K9exit(void)
 
 static void _process(void)
 {
-	char	*ret_str = NULL;
+	char	*ret_str = "default";
 	proc_t	*p = thisp;
 
 		/* free task */
+	if (setjmp(thisp->env)) {
+		p = thisp;
+		printf("%s\n", ret_str);
+		if (prevp->p_next = thisp->p_next) {
+			thisp = thisp->p_next;
+		} else {
+			thisp = FIRSTP;	/* at least one runable proc in array */
+			lastp = prevp;
+		}
+		if (firstfree) {
+			lastfree->p_next = p;
+			lastfree = p;
+		} else {
+			firstfree = p;
+			lastfree  = p;
+		}
+		p->p_next = NULL;
+		free(p->wsplow);	// from stack memory
+		swapcontext(&p->context, &thisp->context);
+
+		/* never get here */
+		return ;
+	}
 	ret_str = p->func(p->arg);
-	p = thisp;
-	printf("%s\n", ret_str);
-	if (prevp->p_next = thisp->p_next) {
-		thisp = thisp->p_next;
-	} else {
-		thisp = FIRSTP;	/* at least one runable proc in array */
-		lastp = prevp;
-	}
-	if (firstfree) {
-		lastfree->p_next = p;
-		lastfree = p;
-	} else {
-		firstfree = p;
-		lastfree  = p;
-	}
-	p->p_next = NULL;
-	free(p->wsplow);	// from stack memory
-	swapcontext(&p->context, &thisp->context);
+	longjmp(thisp->env, 1);
 	/* never get here */
 	return ;
 //		longjmp(thisp->context, 1);	// call next process
@@ -181,6 +187,7 @@ char *swapper(void *priv)
 char *hello_k9(void *arg)
 {
 	printf("%s, %d\n", __func__, (int)arg);
+	K9exit();
 	return "good by, k9";
 }
 
