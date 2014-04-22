@@ -1,13 +1,22 @@
-#include	"setjmp.h"
-#include	"transfer.h"
 
+
+#if 0
+#include	"setjmp.h"
+//#include	"transfer.h"
 #define NULL	0
+#else
+#include	<stdio.h>
+#include 	<stdlib.h>
+#include 	<ucontext.h>
+#include	<setjmp.h>
+#endif
 
 typedef struct proc_t	proc_t;
 struct proc_t
 {
 	jmp_buf		env;
-	jmp_buf		context;
+//	jmp_buf		context;
+	ucontext_t	context;
 	proc_t		*p_next;
 	int		pid;
 	int		p_state;
@@ -44,32 +53,32 @@ static int K9exit(void)
 
 static void _process(void)
 {
-	char	*ret_str = "call K9exit";
+	char	*ret_str = NULL;
 	proc_t	*p = thisp;
 
-	if (setjmp(p->env)) {
-out:
 		/* free task */
-		print("%s\n", ret_str);
-		if (prevp->p_next = thisp->p_next) {
-			thisp = thisp->p_next;
-		} else {
-			thisp = FIRSTP;	/* at least one runable proc in array */
-			lastp = prevp;
-		}
-		if (firstfree) {
-			lastfree->p_next = p;
-			lastfree = p;
-		} else {
-			firstfree = p;
-			lastfree  = p;
-		}
-		p->p_next = NULL;
-		free(p->wsplim);	// from stack memory
-		longjmp(thisp->context, 1);	// call next process
-	}
 	ret_str = p->func(p->arg);
-	goto out;
+	p = thisp;
+	printf("%s\n", ret_str);
+	if (prevp->p_next = thisp->p_next) {
+		thisp = thisp->p_next;
+	} else {
+		thisp = FIRSTP;	/* at least one runable proc in array */
+		lastp = prevp;
+	}
+	if (firstfree) {
+		lastfree->p_next = p;
+		lastfree = p;
+	} else {
+		firstfree = p;
+		lastfree  = p;
+	}
+	p->p_next = NULL;
+	free(p->wsplow);	// from stack memory
+	swapcontext(&p->context, &thisp->context);
+	/* never get here */
+	return ;
+//		longjmp(thisp->context, 1);	// call next process
 }
 
 static void	process(void);
@@ -81,8 +90,11 @@ _spawn(char  *name,
 		unsigned wspsiz, 
 		unsigned rflags)
 {
+	static int i = 0;
+	int	j;
 	proc_t		*p;
 
+	i++;
 	if (!(p = firstfree)) {
 		return -1;	/* no empty element in array */
 	}
@@ -95,17 +107,25 @@ _spawn(char  *name,
 		lastp->p_next = p;
 		lastp = p;
 	} else {
+		printf("set thisp to be : %p\n", p);
 		thisp = lastp = p;
 	}
 
+	printf("spawinging...\n");
 	p->p_next = NULL;
 	p->arg = arg;
 	p->func = func;
-	p->wsplow = malloc(wspsiz);
-	p->wsplim = p->wsplow + 1;	// stack from high to low
-	setjmp(p->context);
-	p->context[14] = _process;
-	p->context[13] = p->wsplim;
+	p->wsplow = calloc(wspsiz, 1);
+	p->wsplim = p->wsplow + wspsiz;	// stack from high to low
+	printf("low: %p, lim: %p\n", p->wsplow, p->wsplim);
+	getcontext(&p->context);
+	p->context.uc_stack.ss_sp = p->wsplow;
+	p->context.uc_stack.ss_size = wspsiz;
+	makecontext(&p->context, _process, 0);
+//	setjmp(p->context);
+//	p->context[0].__jmpbuf[4] = (int)((((long)p->wsplim - 6 * 8) / 8) * 8);
+//	p->context[0].__jmpbuf[5] = (int)_process;
+	printf("spawing finish, fun: %p, i: %d\n", func, i);
 
 	return 0;
 }
@@ -134,10 +154,13 @@ static int K9yield()
 	if (p == thisp) {
 	}
 
+	swapcontext(&p->context, &thisp->context);
+	/*
 	if (setjmp(p->context)) {
 		return 0;
 	}
 	longjmp(thisp->context, 1);
+	*/
 
 	/*
 	 * will never get here
@@ -147,14 +170,28 @@ static int K9yield()
 
 char *swapper(void *priv)
 {
+	printf("hello from swapper\n");
 	while (1) {
+		printf("yield from swapper\n");
 		K9yield();
 	}
 	return "exit";
 }
 
+char *hello_k9(void *arg)
+{
+	printf("%s, %d\n", __func__, (int)arg);
+	return "good by, k9";
+}
+
 char *my_init(void *priv)
 {
+	printf("hello from my_init\n");
+	_spawn("hello", hello_k9, 4, 1024, 0);
+	while (1) {
+		printf("yield from init\n");
+		K9yield();
+	}
 	return "exit";
 }
 
@@ -162,6 +199,7 @@ int K9init(void)
 {
 	int	i;
 	int	total = MAXPROCESS - 1;
+	ucontext_t	init_context;
 
 	thisp = NULL;
 	lastp = NULL;
@@ -174,9 +212,18 @@ int K9init(void)
 	procv[i].pid = i;
 	firstfree = &procv[0];
 	lastfree  = &procv[i];
-	_spawn("swapper", swapper, NULL, 64, 0);
-	_spawn("init", my_init, NULL, 64, 0);
+	printf("spawn swapper\n");
+	_spawn("swapper", swapper, NULL, 64 * 1024, 0);
+	printf("spawn init\n");
+	_spawn("init", my_init, NULL, 64 * 1024, 0);
+	thisp->context.uc_link = &init_context;
+	printf("call first process\n");
+	swapcontext(&init_context, &thisp->context);
 
-	longjmp(thisp->context, 1);	/* run the first process ( here is 0) */
+//	longjmp(thisp->context, 1);	/* run the first process ( here is 0) */
+	printf("should not be here\n");
 	return 0;
 }
+
+
+

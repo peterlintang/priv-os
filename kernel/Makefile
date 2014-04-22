@@ -2,12 +2,12 @@
 include ../make.defines
 include ../make.rules
 
-SRCS := setjmp.s	\
-		start.s		\
-		proc.c
-OBJS := setjmp.o	\
-		start.o		\
-		proc.o
+SRCS := proc.c		\
+#		setjmp.s	\
+		start.s
+OBJS := proc.o		\
+#		setjmp.o	\
+		start.o
 AR_FLAGS := crs
 TARGETS  := kernel.a
 

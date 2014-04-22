@@ -1,5 +1,6 @@
 
-DIRS := kernel 
+DIRS := kernel 	\
+		programs
 all:
 	@for i in $(DIRS); do ( cd $$i; $(MAKE) all ); \
 		if [ $$? -ne 0 ]; then exit 1; fi done
