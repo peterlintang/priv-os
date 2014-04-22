@@ -11,7 +11,7 @@ all: $(TARGETS)
 
 hello_k9: $(OBJS)
 	@$(CC) -static -o $@ $^ ../kernel/kernel.a
-	objdump -D hello_k9 > hello.dis
+	@$(OBJDUMP) -D hello_k9 > hello.dis
 clean:
-	@rm -rf $(OBJS) $(TARGETS) hello.dis
+	@$(RM) -rf $(OBJS) $(TARGETS) hello.dis
 

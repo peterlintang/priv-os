@@ -17,5 +17,5 @@ all: $(TARGETS)
 kernel.a: $(OBJS)
 	@$(AR) $(AR_FLAGS) $@ $^
 clean:
-	@rm -rf $(OBJS) $(TARGETS)
+	@$(RM) -rf $(OBJS) $(TARGETS)
 

@@ -1,5 +1,6 @@
 
 DIRS := kernel 	\
+		mlibc		\
 		programs
 all:
 	@for i in $(DIRS); do ( cd $$i; $(MAKE) all ); \
