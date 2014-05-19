@@ -124,24 +124,4 @@ int minscanf(const char *fmt, ...)
 	return ret;
 }
 
-/*
- * test
- */
-#include <stdio.h>
-#include <stdlib.h>
-
-int main(int argc, char *argv[])
-{
-	int d = 0;
-	char *s = NULL;
-	char c = '\0';
-
-	minscanf("%s %d %c", &s, &d, &c);
-	fprintf(stdout, "%d %c\n", d, c);
-	if (s)
-		fprintf(stdout, "%s\n", s);
-	else
-		fprintf(stderr, "error geting str\n");
-	exit(0);
-}
 
