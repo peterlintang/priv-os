@@ -3,8 +3,10 @@ include ../make.defines
 include ../make.rules
 
 INC_DIR := /home/john/lr33k/include
-SRCS := printf.c
-OBJS := printf.o
+SRCS := printf.c	\
+		malloc.c
+OBJS := printf.o	\
+		malloc.o
 AR_FLAGS := crs
 TARGETS  := libmc.a
 
