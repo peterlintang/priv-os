@@ -10,7 +10,7 @@ all: $(TARGETS)
 
 
 hello_k9: $(OBJS)
-	@$(CC) -static -o $@ $^ ../kernel/kernel.a
+	@$(CC) -static -o $@ $^ ../kernel/kernel.a ../mlibc/libmc.a
 	@$(OBJDUMP) -D hello_k9 > hello.dis
 clean:
 	@$(RM) -rf $(OBJS) $(TARGETS) hello.dis

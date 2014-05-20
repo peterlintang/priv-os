@@ -70,7 +70,7 @@ static void _process(void)
 		/* free task */
 	if (setjmp(thisp->env)) {
 		p = thisp;
-		printf("%s\n", ret_str);
+		myprintf("%s\n", ret_str);
 		if (prevp->p_next = thisp->p_next) {
 			thisp = thisp->p_next;
 		} else {
@@ -128,7 +128,7 @@ _spawn(char  *name,
 		thisp = lastp = p;
 	}
 
-	printf("spawinging...\n");
+	myprintf("spawinging...\n");
 	p->p_next = NULL;
 	p->arg = arg;
 	p->func = func;
@@ -187,9 +187,9 @@ static int K9yield()
 
 char *swapper(void *priv)
 {
-	printf("hello from swapper\n");
+	myprintf("hello from swapper\n");
 	while (1) {
-		printf("yield from swapper\n");
+		myprintf("yield from swapper\n");
 		K9yield();
 	}
 	return "exit";
@@ -197,17 +197,17 @@ char *swapper(void *priv)
 
 char *hello_k9(void *arg)
 {
-	printf("%s, %d\n", __func__, (int)arg);
+	myprintf("%s, %d\n", __func__, (int)arg);
 	K9exit();
 	return "good by, k9";
 }
 
 char *my_init(void *priv)
 {
-	printf("hello from my_init\n");
+	myprintf("hello from my_init\n");
 	_spawn("hello", hello_k9, 4, 1024, 0);
 	while (1) {
-		printf("yield from init\n");
+		myprintf("yield from init\n");
 		K9yield();
 	}
 	return "exit";
@@ -230,16 +230,16 @@ int K9init(void)
 	procv[i].pid = i;
 	firstfree = &procv[0];
 	lastfree  = &procv[i];
-	printf("spawn swapper\n");
+	myprintf("spawn swapper\n");
 	_spawn("swapper", swapper, NULL, 64 * 1024, 0);
-	printf("spawn init\n");
+	myprintf("spawn init\n");
 	_spawn("init", my_init, NULL, 64 * 1024, 0);
 	thisp->context.uc_link = &init_context;
-	printf("call first process\n");
+	myprintf("call first process\n");
 	swapcontext(&init_context, &thisp->context);
 
 //	longjmp(thisp->context, 1);	/* run the first process ( here is 0) */
-	printf("should not be here\n");
+	myprintf("should not be here\n");
 	return 0;
 }
 
