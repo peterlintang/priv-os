@@ -124,6 +124,7 @@ void print_item(void)
 /*
  * test
  */
+/*
 #include <stdlib.h>
 int main(int argc, char *argv[])
 {
@@ -159,3 +160,4 @@ int main(int argc, char *argv[])
 	print_item();
 	exit(0);
 }
+*/
