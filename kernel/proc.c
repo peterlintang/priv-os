@@ -8,8 +8,19 @@
 #include	<stdio.h>
 #include 	<stdlib.h>
 #include 	<ucontext.h>
-#include	<setjmp.h>
+#include	<setjmp.h>	// for longjmp setjmp
 #endif
+/*
+ * need to implement 
+ * longjmp 
+ * setjmp
+ * free
+ * calloc
+ * printf
+ * swapcontext
+ * getcontext
+ * makecontext
+ */
 
 typedef struct proc_t	proc_t;
 struct proc_t
