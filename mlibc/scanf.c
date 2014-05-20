@@ -4,7 +4,7 @@
  * a minimun implement of scanf
  */
 
-#include "print.h"
+#include "../include/print.h"
 #include <stdio.h>
 #include <stdlib.h>	// calloc
 #define GETCH() getchar()
