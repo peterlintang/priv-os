@@ -1,5 +1,5 @@
 #include "../include/print.h"
-#include <stdio.h>
+//#include <stdio.h>
 
 char *ntoa(char *string, int value, 
 		int len, int base, char *letter)
@@ -44,7 +44,7 @@ char *xtoa(char *string, int value, int len)
 	return ntoa(string, value, len, XBASE, XLETTER);
 }
 
-int doprint(char *fmt, va_list ap)
+int doprint(const char *fmt, va_list ap)
 {
 	int ret = 0;
 	int code;
