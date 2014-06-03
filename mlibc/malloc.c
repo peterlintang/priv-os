@@ -84,6 +84,11 @@ void *priv_malloc(size_t nbytes)
 	return (void *) p;
 }
 
+void *priv_calloc(int num, int size)
+{
+	return priv_malloc(num * size);
+}
+
 void priv_free(void *addr)
 {
 	union Header *ap = NULL;
