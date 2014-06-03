@@ -1,5 +1,4 @@
 #include "../include/print.h"
-//#include <stdio.h>
 
 char *ntoa(char *string, int value, 
 		int len, int base, char *letter)
