@@ -1,6 +1,5 @@
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>	// for exit
 
 #include "../include/proc.h"
 
