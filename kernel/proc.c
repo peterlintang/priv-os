@@ -1,12 +1,12 @@
 
 
+#include "print.h"	// for myprintf
 #if 0
 #include	"setjmp.h"
 //#include	"transfer.h"
 #define NULL	0
 #else
 #include	<stdio.h>
-#include 	<stdlib.h>
 #include 	<ucontext.h>
 #include	<setjmp.h>	// for longjmp setjmp
 #endif
@@ -85,7 +85,7 @@ static void _process(void)
 			lastfree  = p;
 		}
 		p->p_next = NULL;
-		free(p->wsplow);	// from stack memory
+		priv_free(p->wsplow);	// from stack memory
 		swapcontext(&p->context, &thisp->context);
 
 		/* never get here */
@@ -132,7 +132,7 @@ _spawn(char  *name,
 	p->p_next = NULL;
 	p->arg = arg;
 	p->func = func;
-	p->wsplow = calloc(wspsiz, 1);
+	p->wsplow = priv_calloc(wspsiz, 1);
 	p->wsplim = p->wsplow + wspsiz;	// stack from high to low
 	printf("low: %p, lim: %p\n", p->wsplow, p->wsplim);
 	getcontext(&p->context);
