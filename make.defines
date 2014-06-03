@@ -1,5 +1,5 @@
 
-CFLAGS := -I/home/john/books/lr33k/kernel -g
+CFLAGS := -I/home/john/lr33k/include -g
 #AR := /root/sdk2.3/OCTEON-SDK/tools/bin/mips64-octeon-linux-gnu-ar
 #CC := /root/sdk2.3/OCTEON-SDK/tools/bin/mips64-octeon-linux-gnu-gcc
 CC	:= gcc
