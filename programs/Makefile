@@ -4,14 +4,14 @@ include ../make.rules
 
 SRCS := main.c
 OBJS := main.o
-TARGETS  := hello_k9
+TARGETS  := hello_os
 
 all: $(TARGETS)
 
 
-hello_k9: $(OBJS)
+hello_os: $(OBJS)
 	@$(CC) -static -o $@ $^ ../kernel/kernel.a ../mlibc/libmc.a
-	@$(OBJDUMP) -D hello_k9 > hello.dis
+	@$(OBJDUMP) -D hello_os > hello.dis
 clean:
 	@$(RM) -rf $(OBJS) $(TARGETS) hello.dis
 

@@ -1,6 +1,6 @@
 
-#ifndef __K9INIT_H
-#define __K9INIT_H
+#ifndef __INIT_H
+#define __INIT_H
 
 /*
  * ucontext utils
@@ -12,5 +12,5 @@ typedef jmp_buf ucontext_t;
 #define makecontext(x, func, unused) { }	// we could not access jmp_buf, so what to do ??
 */
 
-int K9init(void);
+int init(void);
 #endif

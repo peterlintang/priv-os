@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[])
 {
-	myprintf("call K9init\n");
-	K9init();
+	myprintf("call init\n");
+	init();
 	exit(0);
 }

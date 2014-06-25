@@ -36,8 +36,8 @@ struct proc_t
 	char	*wsplim;
 	char	*wsplow;
 #define	DEAD		0/* => defunct			*/
-#define	ZOMBIE		1/* => needs K9wait by parent	*/
-#define	WAITING		2/* => blocked in K9request	*/
+#define	ZOMBIE		1/* => needs wait by parent	*/
+#define	WAITING		2/* => blocked in request	*/
 #define	RUNNING		3/* => normal operation		*/
 #define	STIRRED		4/* => signalled while WAITING	*/
 #define	INTERRUPTED	5/* => signalled while RUNNING	*/
@@ -52,7 +52,7 @@ static proc_t		*prevp;
 static proc_t		*lastp;
 #define	FIRSTP		(&procv[0])	/* the first process will always be there */
 
-static int K9exit(void)
+static int exit(void)
 {
 	longjmp(thisp->env, 1);
 
@@ -150,7 +150,7 @@ _spawn(char  *name,
 
 
 //static int give_up_cpu()
-static int K9yield()
+static int yield()
 {
 	proc_t		*p;
 
@@ -190,30 +190,30 @@ char *swapper(void *priv)
 	myprintf("hello from swapper\n");
 	while (1) {
 		myprintf("yield from swapper\n");
-		K9yield();
+		yield();
 	}
 	return "exit";
 }
 
-char *hello_k9(void *arg)
+char *hello_os(void *arg)
 {
 	myprintf("%s, %d\n", __func__, (int)arg);
-	K9exit();
-	return "good by, k9";
+	exit();
+	return "good by, os";
 }
 
 char *my_init(void *priv)
 {
 	myprintf("hello from my_init\n");
-	_spawn("hello", hello_k9, 4, 1024, 0);
+	_spawn("hello", hello_os, 4, 1024, 0);
 	while (1) {
 		myprintf("yield from init\n");
-		K9yield();
+		yield();
 	}
 	return "exit";
 }
 
-int K9init(void)
+int init(void)
 {
 	int	i;
 	int	total = MAXPROCESS - 1;
