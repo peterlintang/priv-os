@@ -128,7 +128,7 @@ _spawn(char  *name,
 		thisp = lastp = p;
 	}
 
-	myprintf("spawinging...\n");
+	myprintf("spawinging %s...\n", name);
 	p->p_next = NULL;
 	p->arg = arg;
 	p->func = func;
@@ -142,7 +142,7 @@ _spawn(char  *name,
 //	setjmp(p->context);
 //	p->context[0].__jmpbuf[4] = (int)((((long)p->wsplim - 6 * 8) / 8) * 8);
 //	p->context[0].__jmpbuf[5] = (int)_process;
-	printf("spawing finish, fun: %p, i: %d\n", func, i);
+	printf("spawing finish, %s, fun: %p, i: %d\n", name, func, i);
 
 	return 0;
 }
@@ -190,6 +190,7 @@ char *swapper(void *priv)
 	myprintf("hello from swapper\n");
 	while (1) {
 		myprintf("yield from swapper\n");
+		sleep(3);
 		yield();
 	}
 	return "exit";
@@ -198,7 +199,7 @@ char *swapper(void *priv)
 char *hello_os(void *arg)
 {
 	myprintf("%s, %d\n", __func__, (int)arg);
-	exit();
+//	exit();
 	return "good by, os";
 }
 
@@ -208,6 +209,7 @@ char *my_init(void *priv)
 	_spawn("hello", hello_os, 4, 1024, 0);
 	while (1) {
 		myprintf("yield from init\n");
+		sleep(2);
 		yield();
 	}
 	return "exit";
@@ -230,9 +232,7 @@ int init(void)
 	procv[i].pid = i;
 	firstfree = &procv[0];
 	lastfree  = &procv[i];
-	myprintf("spawn swapper\n");
 	_spawn("swapper", swapper, NULL, 64 * 1024, 0);
-	myprintf("spawn init\n");
 	_spawn("init", my_init, NULL, 64 * 1024, 0);
 	thisp->context.uc_link = &init_context;
 	myprintf("call first process\n");

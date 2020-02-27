@@ -110,7 +110,6 @@ int myprintf(const char *fmt, ...)
 	va_list ap;
 	int ret = 0;
 
-	puts("in printf\n");
 	va_start(ap, fmt);
 	ret = doprint(fmt, ap);
 	va_end(ap);
