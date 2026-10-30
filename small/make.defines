@@ -1,0 +1,9 @@
+
+#CFLAGS := -I/mnt/.my/lin/private/priv-os/include -g
+CFLAGS := -I${shell pwd}/ -g
+#AR := /root/sdk2.3/OCTEON-SDK/tools/bin/mips64-octeon-linux-gnu-ar
+#CC := /root/sdk2.3/OCTEON-SDK/tools/bin/mips64-octeon-linux-gnu-gcc
+CC	:= gcc
+AR	:= ar
+OBJDUMP := objdump
+RM	:= rm

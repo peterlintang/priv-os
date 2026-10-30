@@ -1,0 +1,5 @@
+
+.c.o:
+	$(CC) $(CFLAGS)  -c $<
+.s.o:
+	$(CC) $(CFLAGS)  -c $<
