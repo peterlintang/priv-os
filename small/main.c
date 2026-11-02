@@ -6,10 +6,10 @@
 
 #include "ring_buf.h"
 
-__attribute__((aligned(8))) static unsigned char producer_stack1[8 * 1024];
-__attribute__((aligned(8))) static unsigned char producer_stack2[8 * 1024];
-__attribute__((aligned(8))) static unsigned char consumer_stack[8 * 1024];
-__attribute__((aligned(8))) static unsigned char hello_stack[2 * 1024];
+static unsigned char producer_stack1[8 * 1024] __attribute__((aligned(8)));
+static unsigned char producer_stack2[8 * 1024] __attribute__((aligned(8)));
+static unsigned char consumer_stack[8 * 1024] __attribute__((aligned(8)));
+static unsigned char hello_stack[2 * 1024] __attribute__((aligned(8)));
 
 static Ringbuf_T ring_buf;
 
