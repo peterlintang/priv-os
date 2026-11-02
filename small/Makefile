@@ -3,11 +3,9 @@ include make.defines
 include make.rules
 
 SRCS := main.c 	\
-	malloc.c \
 	ring_buf.c \
 	proc.c
 OBJS := main.o	\
-	malloc.o \
 	ring_buf.o \
 	proc.o
 TARGETS  := hello_os

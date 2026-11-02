@@ -1,45 +1,7 @@
 
 
+#include "proc.h"
 
-#if 0
-#include	"setjmp.h"
-//#include	"transfer.h"
-#define NULL	0
-#else
-#include	<stdio.h>
-#include 	<ucontext.h>
-#include	<setjmp.h>	// for longjmp setjmp
-#endif
-
-#include "ring_buf.h"
-
-Ringbuf_T ring_buf;
-void *priv_malloc(size_t nbytes);
-void *priv_calloc(int num, int size);
-void priv_free(void *addr);
-
-
-/*
- * need to implement 
- * longjmp 
- * setjmp
- * free
- * calloc
- * printf
- * swapcontext
- * getcontext
- * makecontext
- */
-
-typedef struct proc_t	proc_t;
-struct proc_t
-{
-	ucontext_t	context;
-	proc_t		*p_next;
-	char 	*(*func)(void *arg);
-	char	*wsplim;
-	char	*wsplow;
-};
 
 #define MAXPROCESS	16
 static proc_t		procv[MAXPROCESS];
@@ -76,7 +38,7 @@ static void _process(void)
 	}
 
 	p->p_next = NULL;
-	priv_free(p->wsplow);	// from stack memory
+//	priv_free(p->wsplow);	// from stack memory
 				
 	if (p == thisp)
 	{
@@ -96,6 +58,7 @@ int
 _spawn(char  *name, 
 		char  *(*func)(void *), 
 		void  *arg, 
+		void *staddr,
 		unsigned wspsiz, 
 		unsigned rflags)
 {
@@ -119,7 +82,8 @@ _spawn(char  *name,
 
 	p->p_next = NULL;
 	p->func = func;
-	p->wsplow = (char *)priv_calloc(wspsiz, 1);
+//	p->wsplow = (char *)priv_calloc(wspsiz, 1);
+	p->wsplow = (char *)staddr;
 	p->wsplim = p->wsplow + wspsiz;	// stack from high to low
 	getcontext(&p->context);
 	p->context.uc_stack.ss_sp = p->wsplow;
@@ -134,7 +98,7 @@ _spawn(char  *name,
 }
 
 
-static int yield()
+int yield(void)
 {
 	proc_t		*p;
 
@@ -165,44 +129,11 @@ static int yield()
 	return 0;
 }
 
-char *producer(void *priv)
-{
-	for (unsigned char i = 0; ; i++)
-	{
-		printf("%s running, i: %u\n", __func__, i);
-		Ringbuf_put(ring_buf, &i, 1);
-		//sleep(1);
-		yield();
-	}
-	return "producer exit";
-}
 
-char *consumer(void *priv)
-{
-	unsigned char data = 0;
-	for (unsigned char i = 0; ; i++)
-	{
-		while (Ringbuf_get(ring_buf, &data, 1) > 0)
-		{
-			printf("%s running, data: %u\n", __func__, data);
-		}
-		//sleep(1);
-		yield();
-	}
-	return "consumer exit";
-}
-
-char *hello(void *priv)
-{
-	return "hello exit";
-}
-
-
-int init(void)
+void init_os(void)
 {
 	char i;
 	char total = MAXPROCESS - 1;
-	ucontext_t	init_context;
 
 	thisp = NULL;
 	lastp = NULL;
@@ -213,20 +144,16 @@ int init(void)
 	procv[i].p_next = NULL;
 	firstfree = &procv[0];
 	lastfree  = &procv[i];
-	_spawn("producer", producer, NULL, 8 * 1024, 0);
-	_spawn("producer", producer, NULL, 8 * 1024, 0);
-	_spawn("consumer", consumer, NULL, 8 * 1024, 0);
-	_spawn("hello", hello, NULL, 2 * 1024, 0);
+}
+
+void start_os(void)
+{
+	ucontext_t	init_context;
+
 	thisp->context.uc_link = &init_context;
-	printf("call first process, proc_t: %d, jmp_buf: %d, ucontext_t: %d\n", (int)sizeof(struct proc_t), (int)sizeof(jmp_buf), (int)sizeof(ucontext_t));
-
-	ring_buf = Ringbuf_create(1024);
-
 	swapcontext(&init_context, &thisp->context);
-
 //	longjmp(thisp->context, 1);	/* run the first process ( here is 0) */
 	printf("should not be here\n");
-	return 0;
 }
 
 

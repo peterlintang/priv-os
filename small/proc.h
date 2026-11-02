@@ -20,5 +20,41 @@ typedef jmp_buf ucontext_t;
 					priv_longjmp((y), 1);	}
 */
 
-int init(void);
+#if 0
+#include	"setjmp.h"
+//#include	"transfer.h"
+#define NULL	0
+#else
+#include	<stdio.h>
+#include 	<ucontext.h>
+#include	<setjmp.h>	// for longjmp setjmp
+#endif
+
+
+/*
+ * need to implement 
+ * longjmp 
+ * setjmp
+ * printf
+ * swapcontext
+ * getcontext
+ * makecontext
+ */
+
+typedef struct proc_t	proc_t;
+struct proc_t
+{
+	ucontext_t	context;
+	proc_t		*p_next;
+	char 	*(*func)(void *arg);
+	char	*wsplim;
+	char	*wsplow;
+};
+
+void init_os(void);
+void start_os(void);
+int _spawn(char  *name, char  *(*func)(void *), 
+		void  *arg, void *addr, unsigned wspsiz, unsigned rflags);
+int yield(void);
+
 #endif
