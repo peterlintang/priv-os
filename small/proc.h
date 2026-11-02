@@ -46,13 +46,13 @@ struct proc_t
 {
 	ucontext_t	context;
 	proc_t		*p_next;
-	char 	*(*func)(void *arg);
+	void 		(*func)(void);
 };
 
 void init_os(void);
 void start_os(void);
-int _spawn(char  *name, char  *(*func)(void *), 
-		void  *arg, void *addr, unsigned wspsiz, unsigned rflags);
+int _spawn(char  *name, void (*func)(void), 
+		void *addr, unsigned wspsiz, unsigned rflags);
 int yield(void);
 
 #endif

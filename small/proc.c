@@ -15,11 +15,9 @@ static proc_t		*lastp;
 
 static void _process(void)
 {
-	char	*ret_str = "default";
 	proc_t	*p = thisp;
 
-	ret_str = p->func(NULL);
-	printf("%s\n", ret_str);
+	p->func();
 
 	p = thisp;
 
@@ -56,8 +54,7 @@ static void _process(void)
 
 int
 _spawn(char  *name, 
-		char  *(*func)(void *), 
-		void  *arg, 
+		void (*func)(void), 
 		void *staddr,
 		unsigned wspsiz, 
 		unsigned rflags)
@@ -154,5 +151,13 @@ void start_os(void)
 	printf("should not be here\n");
 }
 
+int task_count(void)
+{
+	int count = 0;
+	proc_t *p = FIRSTP;
+	for (; p; p = p->p_next)
+		count++;
+	return count;
+}
 
 
