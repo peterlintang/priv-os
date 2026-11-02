@@ -6,10 +6,10 @@
 
 #include "ring_buf.h"
 
-static unsigned producer_stack1[8 * 1024];
-static unsigned producer_stack2[8 * 1024];
-static unsigned consumer_stack[8 * 1024];
-static unsigned hello_stack[2 * 1024];
+static unsigned char producer_stack1[8 * 1024];
+static unsigned char producer_stack2[8 * 1024];
+static unsigned char consumer_stack[8 * 1024];
+static unsigned char hello_stack[2 * 1024];
 
 static Ringbuf_T ring_buf;
 
@@ -47,13 +47,15 @@ char *consumer(void *priv)
 
 int main(int argc, char *argv[])
 {
-	printf("call init\n");
 	init_os();
+
 	_spawn("producer", producer, NULL, producer_stack1, 8 * 1024, 0);
 	_spawn("producer", producer, NULL, producer_stack2, 8 * 1024, 0);
 	_spawn("consumer", consumer, NULL, consumer_stack, 8 * 1024, 0);
 	_spawn("hello", hello, NULL, hello_stack, 2 * 1024, 0);
-	printf("call first process, proc_t: %d, jmp_buf: %d, ucontext_t: %d\n", (int)sizeof(struct proc_t), (int)sizeof(jmp_buf), (int)sizeof(ucontext_t));
+
+	printf("call first process, proc_t: %d, ucontext_t: %d\n", (int)sizeof(struct proc_t), (int)sizeof(ucontext_t));
+	sleep(3);
 
 	ring_buf = Ringbuf_create(1024);
 

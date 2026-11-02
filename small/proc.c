@@ -83,16 +83,14 @@ _spawn(char  *name,
 	p->p_next = NULL;
 	p->func = func;
 //	p->wsplow = (char *)priv_calloc(wspsiz, 1);
-	p->wsplow = (char *)staddr;
-	p->wsplim = p->wsplow + wspsiz;	// stack from high to low
 	getcontext(&p->context);
-	p->context.uc_stack.ss_sp = p->wsplow;
+	p->context.uc_stack.ss_sp = (char *)staddr; //p->wsplow;
 	p->context.uc_stack.ss_size = wspsiz;
 	makecontext(&p->context, _process, 0);
 //	setjmp(p->context);
 //	p->context[0].__jmpbuf[4] = (int)((((long)p->wsplim - 6 * 8) / 8) * 8);
 //	p->context[0].__jmpbuf[5] = (int)_process;
-	printf("spawing %s, fun: %p, stack: %p, %p\n", name, func, p->wsplow, p->wsplim);
+	printf("spawing %s, fun: %p, stack: %p, %p\n", name, func, staddr, ((char *)staddr) + wspsiz);
 
 	return 0;
 }

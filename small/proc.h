@@ -47,8 +47,6 @@ struct proc_t
 	ucontext_t	context;
 	proc_t		*p_next;
 	char 	*(*func)(void *arg);
-	char	*wsplim;
-	char	*wsplow;
 };
 
 void init_os(void);
