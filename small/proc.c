@@ -12,6 +12,7 @@ static proc_t		*prevp;
 static proc_t		*lastp;
 #define	FIRSTP		(&procv[0])	/* the first process will always be there */
 
+static ucontext_t	init_context;
 
 static void _process(void)
 {
@@ -40,13 +41,14 @@ static void _process(void)
 				
 	if (p == thisp)
 	{
-		thisp = NULL;
+		//thisp = NULL;
 		printf("exit last task\n");
 	}
 	else
 	{
 		swapcontext(&p->context, &thisp->context);
 	}
+	swapcontext(&thisp->context, &init_context);
 
 	return ;
 }
@@ -143,7 +145,6 @@ void init_os(void)
 
 void start_os(void)
 {
-	ucontext_t	init_context;
 
 	thisp->context.uc_link = &init_context;
 	swapcontext(&init_context, &thisp->context);
